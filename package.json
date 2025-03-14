@@ -1,0 +1,21 @@
+{
+  "name": "school-management-system-api",
+  "version": "1.0.0",
+  "description": "Projeto de curso online utilizando NodeJS",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "server": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rmullo/school-management-system-api.git"
+  },
+  "keywords": ["NodeJS", "API", "School Management System"],
+  "author": "Rômulo P. Almeida",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rmullo/school-management-system-api/issues"
+  },
+  "homepage": "https://github.com/rmullo/school-management-system-api#readme"
+}
