@@ -13,12 +13,13 @@ const {
     publishExamResultsCtrl,
     unpublishExamResultsCtrl
 } = require("../../controller/staff/adminCtrl");   
+const isLogin = require('../../middlewares/isLogin');
 const adminRouter = express.Router();
 
 adminRouter.post('/register', registerAdmCtrl)
 adminRouter.post('/login', loginAdmCtrl)
 adminRouter.get('/', getAllAdmCtrl)
-adminRouter.get('/:id', getSingleAdmCtrl)
+adminRouter.get('/:id',isLogin, getSingleAdmCtrl)
 adminRouter.put('/:id', updateAdmCtrl)
 adminRouter.delete('/:id', deleteAdmCtrl)
 adminRouter.put('/suspend/teacher/:id', suspendTeacherCtrl)

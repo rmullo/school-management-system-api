@@ -1,6 +1,8 @@
 const Admin = require('../../model/staff/Admin.js');
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
+const generateAuthToken = require('../../utils/generateToken.js');
+const verifyToken = require('../../utils/verifyToken.js');
 
 
 /**
@@ -18,11 +20,10 @@ exports.registerAdmCtrl = asyncHandler(async (req, res) => {
     if (admin) {
         throw new Error('Email already exists');
     }
-    const hashedPassword = await bcrypt.hash(password, 12);
     const newAdmin = await Admin.create({
         name,
         email,
-        password: hashedPassword
+        password
     });
     res.status(201).json({
         status: 'success',
@@ -39,37 +40,27 @@ exports.registerAdmCtrl = asyncHandler(async (req, res) => {
  * @param {Object} res - Express response object
  * @returns {void} Sends a JSON response with a JWT token or an error message
  */
-exports.loginAdmCtrl = async (req, res) => {
+exports.loginAdmCtrl = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-    try {
-        //find user by email
-        const admin = await Admin.findOne({ email });
-        if (!admin) {
-            return res.status(400).json({
-                status: 'fail',
-                message: 'Invalid credentials'   
-            })
-        }
-        //check if password is correct
-        const isPasswordCorrect = await admin.verifyPassword(password, admin.password);
-        if (!isPasswordCorrect) {
-            return res.status(400).json({
-                status: 'fail',
-                message: 'Invalid credentials'
-            })
-        }
-        //return JWT token
-        res.status(201).json({
-            status: 'success',
-            token: admin.generateAuthToken()        
-        })
-    } catch (error) {
-        res.status(500).json({
-            status: 'fail',
-            message: "Login failed"
-        })
+    
+    //find user by email
+    const admin = await Admin.findOne({ email });
+    if (!admin) {
+        throw new Error('Invalid Credentials');
     }
-};
+    //check if password is correct
+    const isPasswordCorrect = await admin.verifyPassword(password, admin.password);
+    if (!isPasswordCorrect) {
+        throw new Error('Invalid Credentials');
+    }
+    //return JWT token
+    res.status(201).json({
+        status: 'success',
+        token: generateAuthToken(admin._id)      
+    })
+
+    
+});
 
 /**
  * @desc Retrieves all admins.

@@ -1,7 +1,8 @@
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const { json } = require("express");
 
 const mongoose = require("mongoose");
+const generateAuthToken = require("../../utils/generateToken");
 const adminSchema = new mongoose.Schema(
   {
     name: {
@@ -71,7 +72,7 @@ const adminSchema = new mongoose.Schema(
 //Hash Password
 adminSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 12);
+    this.password = await bcrypt.hash(this.password, 10);
   }
   next();
 });
@@ -84,22 +85,7 @@ adminSchema.methods.verifyPassword = async function (
   return await bcrypt.compare(enteredPassword, userPassword);
 };
 
-//Generate Auth Token
-adminSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign(
-    { id: this._id, role: this.role },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    }
-  );  
-  return token;
-};
-
 //model
 const Admin = mongoose.model("Admin", adminSchema);
 
 module.exports = Admin;
-
-//Exemplo de JSON para criar um administrador
-// { "name": "Admin", "email": "admin", "password": "admin" }
