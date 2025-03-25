@@ -15,3 +15,5 @@ nodemon
 morgan
 bcryptjs
 dotenv
+jsonwebtoken
+express-async-handler

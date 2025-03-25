@@ -1,43 +1,34 @@
 const Admin = require('../../model/staff/Admin.js');
-
+const asyncHandler = require('express-async-handler');
+const bcrypt = require('bcryptjs');
 
 
 /**
- * @desc Registers a new admin.
+ * @desc Registers a new admin
  * @route POST /api/v1/admins/register
  * @access Public
- * @param {Object} req - Express request object containing admin details in the body
+ * @param {Object} req - Express request object
  * @param {Object} res - Express response object
- * @returns {void} Sends a JSON response with status and new admin data or error message
+ * @returns {void} Sends a JSON response with status and data or error message
  */
-exports.registerAdmCtrl = async (req, res) => {
+exports.registerAdmCtrl = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
-    try {
-        //check if email already exists
-        const admin = await Admin.findOne({ email });
-        if (admin) {
-            return res.status(400).json({
-                status: 'fail',
-                message: 'Email already exists'
-            })
-        }
-        
-        const newAdmin = await Admin.create({
-            name,
-            email,
-            password
-        });
-        res.status(201).json({
-            status: 'success',
-            data: newAdmin
-        })
-    } catch (error) {
-        res.status(500).json({
-            status: 'fail',
-            message: error.message
-        })
+    // Check if email already exists
+    const admin = await Admin.findOne({ email });
+    if (admin) {
+        throw new Error('Email already exists');
     }
-};
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const newAdmin = await Admin.create({
+        name,
+        email,
+        password: hashedPassword
+    });
+    res.status(201).json({
+        status: 'success',
+        data: newAdmin
+    });
+});
 
 
 /**
