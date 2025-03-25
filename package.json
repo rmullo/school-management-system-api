@@ -11,11 +11,24 @@
     "type": "git",
     "url": "git+https://github.com/rmullo/school-management-system-api.git"
   },
-  "keywords": ["NodeJS", "API", "School Management System"],
+  "keywords": [
+    "NodeJS",
+    "API",
+    "School Management System"
+  ],
   "author": "Rômulo P. Almeida",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/rmullo/school-management-system-api/issues"
   },
-  "homepage": "https://github.com/rmullo/school-management-system-api#readme"
+  "homepage": "https://github.com/rmullo/school-management-system-api#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.12.1",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.9"
+  }
 }

@@ -13,3 +13,5 @@ Mongoose
 express
 nodemon
 morgan
+bcryptjs
+dotenv
