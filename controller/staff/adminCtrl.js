@@ -1,8 +1,8 @@
 const Admin = require('../../model/staff/Admin.js');
 const asyncHandler = require('express-async-handler');
-const bcrypt = require('bcryptjs');
 const generateAuthToken = require('../../utils/generateToken.js');
 const verifyToken = require('../../utils/verifyToken.js');
+const { hashPassword, comparePassword } = require('../../utils/helpers.js');
 
 
 /**
@@ -20,14 +20,19 @@ exports.registerAdmCtrl = asyncHandler(async (req, res) => {
     if (admin) {
         throw new Error('Email already exists');
     }
+
     const newAdmin = await Admin.create({
         name,
         email,
-        password
+        password:await hashPassword(password)
     });
     res.status(201).json({
         status: 'success',
-        data: newAdmin
+        data: {
+            name: newAdmin.name,
+            email: newAdmin.email
+        },
+        message: 'Admin created successfully'
     });
 });
 
@@ -49,14 +54,15 @@ exports.loginAdmCtrl = asyncHandler(async (req, res) => {
         throw new Error('Invalid Credentials');
     }
     //check if password is correct
-    const isPasswordCorrect = await admin.verifyPassword(password, admin.password);
+    const isPasswordCorrect = await comparePassword(password, admin.password);
     if (!isPasswordCorrect) {
         throw new Error('Invalid Credentials');
     }
     //return JWT token
     res.status(201).json({
         status: 'success',
-        token: generateAuthToken(admin._id)      
+        token: generateAuthToken(admin._id),
+        message: 'Admin logged in successfully'    
     })
 
     
@@ -70,19 +76,14 @@ exports.loginAdmCtrl = asyncHandler(async (req, res) => {
  * @param {Object} res - Express response object
  * @returns {void} Sends a JSON response with status and data or error message
  */
-exports.getAllAdmCtrl = (req, res) => {
-    try {
-        res.status(201).json({
-            status: 'success',
-            data: 'All Admins fetched successfully'
-        })
-    } catch (error) {
-        res.status(500).json({
-            status: 'fail',
-            message: error.message
-        })
-    }
-};
+exports.getAllAdmCtrl = asyncHandler(async (req, res) => {
+    const admins = await Admin.find().select('name email role');
+    res.status(201).json({
+        status: 'success',
+        data: admins,
+        message: 'Admins fetched successfully'
+    })
+});
 
 /**
  * @desc Retrieves a single admin by ID.
@@ -92,19 +93,17 @@ exports.getAllAdmCtrl = (req, res) => {
  * @param {Object} res - Express response object
  * @returns {void} Sends a JSON response with status and data or error message
  */
-exports.getSingleAdmCtrl = (req, res) => {
-    try {
-        res.status(201).json({
-            status: 'success',
-            data: 'Single Admin fetched successfully'
-        })
-    } catch (error) {
-        res.status(500).json({
-            status: 'fail',
-            message: error.message
-        })
+exports.getAdmProfileCtrl = asyncHandler(async (req, res) => {
+    const admin = await Admin.findById(req.user._id).select('name email role');
+    if (!admin) {
+        throw new Error('Admin not found');
     }
-};
+    res.status(201).json({
+        status: 'success',
+        data: admin,
+        message: 'Admin profile fetched successfully'
+    })
+});
 
 /**
  * @desc Updates a single admin by ID.
@@ -114,19 +113,21 @@ exports.getSingleAdmCtrl = (req, res) => {
  * @param {Object} res - Express response object
  * @returns {void} Sends a JSON response with status and data or error message
  */
-exports.updateAdmCtrl = (req, res) => {
-    try {
-        res.status(201).json({
-            status: 'success',
-            data: 'Admin updated successfully'
-        })
-    } catch (error) {
-        res.status(500).json({
-            status: 'fail',
-            message: error.message
-        })
+exports.updateAdmCtrl = asyncHandler(async (req, res) => {
+    const admin = await Admin.findById(req.user._id);
+    if (!admin) {
+        throw new Error('Admin not found');
     }
-};
+    
+    req.body.password ? req.body.password = await hashPassword(req.body.password) : null;
+
+    const updatedAdmin = await Admin.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true }).select('name email role');
+    res.status(201).json({
+        status: 'success',
+        data: updatedAdmin,
+        message: 'Admin updated successfully'
+    })
+});
 
 /**
  * @desc Deletes a single admin by ID.

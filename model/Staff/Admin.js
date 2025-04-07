@@ -1,8 +1,4 @@
-const bcrypt = require("bcryptjs");
-const { json } = require("express");
-
 const mongoose = require("mongoose");
-const generateAuthToken = require("../../utils/generateToken");
 const adminSchema = new mongoose.Schema(
   {
     name: {
@@ -33,10 +29,10 @@ const adminSchema = new mongoose.Schema(
         ref: "Program",
       },
     ],
-    yearGroups: [
+    academicTerms: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "YearGroup",
+        ref: "AcademicTerm",
       },
     ],
     academicYears: [
@@ -68,22 +64,6 @@ const adminSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-//Hash Password
-adminSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
-  next();
-});
-
-//Verify Password
-adminSchema.methods.verifyPassword = async function (
-  enteredPassword,
-  userPassword
-) {
-  return await bcrypt.compare(enteredPassword, userPassword);
-};
 
 //model
 const Admin = mongoose.model("Admin", adminSchema);
