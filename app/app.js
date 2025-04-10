@@ -10,9 +10,11 @@ app.use(express.json());
 
 //Routes
 
-const adminRouter = require('../routes/staff/AdminRouter');
+const adminRouter = require('../routes/staff/adminRouter');
+const academicYearRouter = require('../routes/academic/academicYearRouter');
 
 app.use('/api/v1/admins', adminRouter);
+app.use('/api/v1/academic-years', academicYearRouter);
 
 //Error Middleware
 app.use(notFoundErr);
