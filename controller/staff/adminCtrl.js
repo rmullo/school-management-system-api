@@ -94,7 +94,7 @@ exports.getAllAdmCtrl = asyncHandler(async (req, res) => {
  * @returns {void} Sends a JSON response with status and data or error message
  */
 exports.getAdmProfileCtrl = asyncHandler(async (req, res) => {
-    const admin = await Admin.findById(req.user._id).select('name email role academicYears').populate('academicYears');
+    const admin = await Admin.findById(req.user._id).select('name email role academicYears').populate('academicYears academicTerms classLevels programs subjects');
     if (!admin) {
         throw new Error('Admin not found');
     }
