@@ -17,6 +17,7 @@ const classLevelRouter = require('../routes/academic/classLevelRouter');
 const programRouter = require('../routes/academic/programRouter');
 const subjectRouter = require('../routes/academic/subjectRouter');
 const yearGroupRouter = require('../routes/academic/yearGroupRouter');
+const teacherRouter = require('../routes/staff/teacherRouter');
 
 app.use('/api/v1/admins', adminRouter);
 app.use('/api/v1/academic-years', academicYearRouter);
@@ -25,6 +26,7 @@ app.use('/api/v1/class-levels', classLevelRouter);
 app.use('/api/v1/programs', programRouter);
 app.use('/api/v1/subjects', subjectRouter);
 app.use('/api/v1/year-groups', yearGroupRouter);
+app.use('/api/v1/teachers', teacherRouter);
 
 //Error Middleware
 app.use(notFoundErr);
