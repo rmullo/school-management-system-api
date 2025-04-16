@@ -59,7 +59,12 @@ exports.createExamCtrl = asyncHandler(async (req, res) => {
 });
 
 exports.getAllExamsCtrl = asyncHandler(async (req, res) => {
-    const exams = await Exam.find().populate('createdBy subject program academicTerm classLevel academicYear');
+    const exams = await Exam.find().populate({
+        path:"questions",
+        populate: {
+            path: "createdBy",
+        }
+    });
     res.status(200).json({
         status: 'success',
         data: exams
@@ -67,7 +72,12 @@ exports.getAllExamsCtrl = asyncHandler(async (req, res) => {
 });
 
 exports.getExamCtrl = asyncHandler(async (req, res) => {
-    const exam = await Exam.findById(req.params.id).populate('createdBy subject program academicTerm classLevel academicYear');
+    const exam = await Exam.findById(req.params.id).populate({
+        path:"questions",
+        populate: {
+            path: "createdBy",
+        }
+    });
     if (!exam) {
         throw new Error('Exam not found');
     }
