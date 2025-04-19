@@ -22,6 +22,12 @@ exports.registerTeacherCtrl = asyncHandler(async (req, res) => {
         password: hashedPassword,
         createdBy: req.user._id
     });
+
+    //push into the admins array
+    const admin = await Admin.findById(req.user._id);
+    admin.teachers.push(newTeacher._id);
+    await admin.save();
+    
     res.status(201).json({
         status: 'success',
         data: newTeacher,

@@ -21,6 +21,7 @@ const teacherRouter = require('../routes/staff/teacherRouter');
 const examRouter = require('../routes/academic/examRouter');
 const studentRouter = require('../routes/staff/studentRouter');
 const questionRouter = require('../routes/academic/questionRouter');
+const examResultRouter = require('../routes/staff/examResultRouter');
 
 app.use('/api/v1/admins', adminRouter);
 app.use('/api/v1/academic-years', academicYearRouter);
@@ -33,6 +34,7 @@ app.use('/api/v1/teachers', teacherRouter);
 app.use('/api/v1/exams', examRouter);
 app.use('/api/v1/students', studentRouter);
 app.use('/api/v1/questions',questionRouter);
+app.use('/api/v1/exam-results',examResultRouter);
 
 //Error Middleware
 app.use(notFoundErr);

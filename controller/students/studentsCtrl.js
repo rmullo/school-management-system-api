@@ -21,6 +21,12 @@ exports.adminRegisterStudentCtrl = asyncHandler(async (req, res) => {
         email,
         password: hashedPassword,
     });
+
+    //push into the admins array
+    const admin = await Admin.findById(req.user._id);
+    admin.students.push(studentCreated._id);
+    await admin.save();
+
     res.status(201).json({
         status: "success",
         data: studentCreated,
@@ -46,11 +52,31 @@ exports.studentLoginCtrl = asyncHandler(async (req, res) => {
 });
 
 exports.getStudentProfileCtrl = asyncHandler(async (req, res) => {
-    const student = await Student.findById(req.user._id).select("-password -createdAt -updatedAt");
+    const student = await Student.findById(req.user._id).select("-password -createdAt -updatedAt").populate('examResults');
+
+    const studentProfile = {
+        name: student.name,
+        email: student.email,
+        currentClassLevel: student.currentClassLevel,
+        dateAdmitted: student.dateAdmitted,
+        studentId: student.studentId,
+        program: student.program,
+        prefectName: student.prefectName,
+        isSuspended: student.isSuspended,
+        isWithdrawn: student.isWithdrawn
+    }
     
+    const examResults = student.examResults;
+    const currentExamResults = examResults[examResults.length - 1];
+    const isPublished = currentExamResults.isPublished;
+
+
     res.status(200).json({
         status: "success",
-        data: student,
+        data: {
+            studentProfile,
+            currentExamResults: isPublished? currentExamResults : null
+        },
         message: "Student fetched successfully",
     });
 });
@@ -135,6 +161,8 @@ exports.adminUpdateStudentCtrl = asyncHandler(async (req, res) => {
     },
     { new: true, runValidators: true }
     ).select('-password -createdAt -updatedAt');
+
+
 
     res.status(200).json({
         status: 'success',
@@ -224,7 +252,7 @@ exports.writeExamCtrl = asyncHandler(async (req, res) => {
     }
 
     const examResult = await ExamResult.create({
-        student: req.user._id,
+        studentId: student.studentId,
         exam: req.params.id,
         grade,
         score,
