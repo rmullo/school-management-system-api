@@ -1,6 +1,5 @@
 const express = require('express');
-const isTeacherLogin = require('../../middlewares/isTeacherLogin');
-const isTeacher = require('../../middlewares/isTeacher');
+const roleRestriction = require('../../middlewares/roleRestriction');
 
 const examRouter = express.Router();
 const {
@@ -10,12 +9,13 @@ const {
     updateExamCtrl,
     deleteExamCtrl
 } = require('../../controller/academics/examsCtrl');
-const isLogin = require('../../middlewares/isLogin');
+const isAuth = require('../../middlewares/isAuth');
+const Teacher = require('../../model/staff/Teacher');
 
-examRouter.route('/',isTeacherLogin, isTeacher)
+examRouter.route('/',isAuth(Teacher), roleRestriction('teacher'))
     .post(createExamCtrl)
     .get(getAllExamsCtrl);
-examRouter.route('/:id', isTeacherLogin, isTeacher)
+examRouter.route('/:id', isAuth(Teacher), roleRestriction('teacher'))
     .get(getExamCtrl)
     .put(updateExamCtrl);
 module.exports = examRouter;

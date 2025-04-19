@@ -4,15 +4,15 @@ const {
     getAllExamResultsCtrl,
     adminToggleExamResultsCtrl
 } = require('../../controller/academics/examResultsCtrl');
-const isLogin = require('../../middlewares/isLogin');
-const isAdmin = require('../../middlewares/isAdmin');
-const isStudent = require('../../middlewares/isStudent');
-const isStudenteLogin = require('../../middlewares/isStudentLogin');
+const Admin = require('../../model/staff/Admin');
+const isAuth = require('../../middlewares/isAuth');
+const roleRestriction = require('../../middlewares/roleRestriction');
+const Student = require('../../model/academic/Student');
 const examResultsRouter = express.Router();
 
-examResultsRouter.route('/:id/checking').get(isStudenteLogin, isStudent, checkExamResultCtrl);
-examResultsRouter.route('/').get(isStudenteLogin, isStudent, getAllExamResultsCtrl);
+examResultsRouter.route('/:id/checking').get(isAuth(Student), roleRestriction('student'), checkExamResultCtrl);
+examResultsRouter.route('/').get(isAuth(Student), roleRestriction('student'), getAllExamResultsCtrl);
 
-examResultsRouter.route('/:id/admin-toggle-published').put(isLogin, isAdmin, adminToggleExamResultsCtrl);
+examResultsRouter.route('/:id/admin-toggle-published').put(isAuth(Admin), roleRestriction('admin'), adminToggleExamResultsCtrl);
 
 module.exports = examResultsRouter;

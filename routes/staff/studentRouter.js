@@ -10,26 +10,26 @@ const {
     adminUpdateStudentCtrl,
     writeExamCtrl
 } = require('../../controller/students/studentsCtrl');
-const isStudent = require('../../middlewares/isStudent');
-const isStudentLogin = require('../../middlewares/isStudentLogin');
-const isLogin = require('../../middlewares/isLogin');
-const isAdmin = require('../../middlewares/isAdmin');
+const isAuth = require('../../middlewares/isAuth');
+const Student = require('../../model/academic/Student');
+const Admin = require('../../model/staff/Admin');	
+const roleRestriction = require('../../middlewares/roleRestriction');
 
 studentRouter.route('/admin/register')
-    .post(isLogin, isAdmin, adminRegisterStudentCtrl);
+    .post(isAuth(Admin), roleRestriction('admin'), adminRegisterStudentCtrl);
 studentRouter.route('/login')
     .post(studentLoginCtrl);
 studentRouter.route('/profile')
-    .get(isStudentLogin, isStudent, getStudentProfileCtrl);
+    .get(isAuth(Student), roleRestriction('student'), getStudentProfileCtrl);
 studentRouter.route('/admin')
-    .get(isLogin, isAdmin, adminGetAllStudentsCtrl);
+    .get(isAuth(Admin), roleRestriction('admin'), adminGetAllStudentsCtrl);
     studentRouter.route('/:id/admin/')
-    .get(isLogin, isAdmin, adminGetStudentCtrl);
+    .get(isAuth(Admin), roleRestriction('admin'), adminGetStudentCtrl);
 studentRouter.route('/exam/:id/write')
-    .post(isStudentLogin, isStudent, writeExamCtrl);
+    .post(isAuth(Student), roleRestriction('student'), writeExamCtrl);
 studentRouter.route('/update')
-    .put(isStudentLogin, isStudent, studentUpdateProfileCtrl);
+    .put(isAuth(Student), roleRestriction('student'), studentUpdateProfileCtrl);
 studentRouter.route('/:id/update/admin')
-    .put(isLogin, isAdmin, adminUpdateStudentCtrl);
+    .put(isAuth(Admin), roleRestriction('admin'), adminUpdateStudentCtrl);
 
 module.exports = studentRouter;

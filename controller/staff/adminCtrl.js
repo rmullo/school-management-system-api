@@ -3,6 +3,7 @@ const asyncHandler = require('express-async-handler');
 const generateAuthToken = require('../../utils/generateToken.js');
 const verifyToken = require('../../utils/verifyToken.js');
 const { hashPassword, comparePassword } = require('../../utils/helpers.js');
+const advancedResults = require('../../middlewares/advancedResults.js');
 
 
 /**
@@ -77,12 +78,7 @@ exports.loginAdmCtrl = asyncHandler(async (req, res) => {
  * @returns {void} Sends a JSON response with status and data or error message
  */
 exports.getAllAdmCtrl = asyncHandler(async (req, res) => {
-    const admins = await Admin.find().select('name email role');
-    res.status(201).json({
-        status: 'success',
-        data: admins,
-        message: 'Admins fetched successfully'
-    })
+    res.status(200).json(res.results);
 });
 
 /**

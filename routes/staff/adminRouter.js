@@ -13,17 +13,19 @@ const {
     publishExamResultsCtrl,
     unpublishExamResultsCtrl
 } = require("../../controller/staff/adminCtrl");   
-const isLogin = require('../../middlewares/isLogin');
-const isAdmin = require('../../middlewares/isAdmin');
+const isAuth = require('../../middlewares/isAuth');
+const advancedResults = require('../../middlewares/advancedResults');
 const adminRouter = express.Router();
+const Admin = require('../../model/staff/Admin');
+const roleRestriction = require('../../middlewares/roleRestriction');
 
 
-adminRouter.get('/', isLogin, getAllAdmCtrl)
-adminRouter.put('/',isLogin,isAdmin, updateAdmCtrl)
+adminRouter.get('/', isAuth(Admin), roleRestriction('admin'), advancedResults(Admin), getAllAdmCtrl)
+adminRouter.put('/',isAuth(Admin),roleRestriction('admin'), updateAdmCtrl)
 adminRouter.delete('/:id', deleteAdmCtrl)
 adminRouter.post('/register', registerAdmCtrl)
 adminRouter.post('/login', loginAdmCtrl)
-adminRouter.get('/profile',isLogin, isAdmin, getAdmProfileCtrl)
+adminRouter.get('/profile',isAuth(Admin), roleRestriction('admin'), getAdmProfileCtrl)
 adminRouter.put('/suspend/teacher/:id', suspendTeacherCtrl)
 adminRouter.put('/unsuspend/teacher/:id', unsuspendTeacherCtrl)
 adminRouter.put('/withdraw/teacher/:id', withdrawTeacherCtrl)

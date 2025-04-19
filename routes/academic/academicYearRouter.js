@@ -6,11 +6,12 @@ const {
     updateAcademicYearCtrl,
     deleteAcademicYearCtrl,
 } = require("../../controller/academics/academicYearCtrl");
-const isLogin = require('../../middlewares/isLogin');
-const isAdmin = require('../../middlewares/isAdmin');
+const isAuth = require('../../middlewares/isAuth');
+const roleRestriction = require('../../middlewares/roleRestriction');
 const academicYearRouter = express.Router();
+const Admin = require('../../model/staff/Admin');
 
-academicYearRouter.route('/').post(isLogin, isAdmin, createAcademicYearCtrl).get(isLogin, isAdmin, getAllAcademicYearsCtrl);
-academicYearRouter.route('/:id').get(isLogin, isAdmin, getAcademicYearCtrl).put(isLogin, isAdmin, updateAcademicYearCtrl).delete(isLogin, isAdmin, deleteAcademicYearCtrl);
+academicYearRouter.route('/').post(isAuth(Admin), roleRestriction('admin'), createAcademicYearCtrl).get(isAuth(Admin), roleRestriction('admin'), getAllAcademicYearsCtrl);
+academicYearRouter.route('/:id').get(isAuth(Admin), roleRestriction('admin'), getAcademicYearCtrl).put(isAuth(Admin), roleRestriction('admin'), updateAcademicYearCtrl).delete(isAuth(Admin), roleRestriction('admin'), deleteAcademicYearCtrl);
 
 module.exports = academicYearRouter;

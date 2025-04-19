@@ -11,24 +11,24 @@ const {
     updateTeacherCtrl, 
     deleteTeacherCtrl
 } = require('../../controller/staff/teacherCtrl');
-const isLogin = require('../../middlewares/isLogin');
-const isAdmin = require('../../middlewares/isAdmin');
-const isTeacher = require('../../middlewares/isTeacher');
-const isTeacherLogin = require('../../middlewares/isTeacherLogin');
+const isAuth = require('../../middlewares/isAuth');
+const roleRestriction = require('../../middlewares/roleRestriction');
+const Teacher = require('../../model/staff/Teacher');
+const Admin = require('../../model/staff/Admin');
 
 teacherRouter.route('/admin/register')
-    .post(isLogin, isAdmin, registerTeacherCtrl)
+    .post(isAuth(Admin), roleRestriction('admin'), registerTeacherCtrl)
 teacherRouter.route('/login')
     .post(loginTeacherCtrl);
 teacherRouter.route('/admin')
-    .get(isLogin, isAdmin, adminGetTeachersCtrl);
+    .get(isAuth(Admin), roleRestriction('admin'), adminGetTeachersCtrl);
 teacherRouter.route('/profile')
-    .get(isTeacherLogin, isTeacher, getTeacherProfileCtrl)
+    .get(isAuth(Teacher), roleRestriction('teacher'), getTeacherProfileCtrl)
 teacherRouter.route('/:id/update')
-    .put(isTeacherLogin, isTeacher, updateTeacherCtrl)
+    .put(isAuth(Teacher), roleRestriction('teacher'), updateTeacherCtrl)
 teacherRouter.route('/:id/admin')
-    .get(isLogin, isAdmin, adminGetTeacherCtrl);
+    .get(isAuth(Admin), roleRestriction('admin'), adminGetTeacherCtrl);
 teacherRouter.route('/:id/update/admin')
-    .put(isLogin, isAdmin, adminUpdateTeacherCtrl);
+    .put(isAuth(Admin), roleRestriction('admin'), adminUpdateTeacherCtrl);
 
 module.exports = teacherRouter;

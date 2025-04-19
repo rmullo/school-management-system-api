@@ -6,11 +6,12 @@ const {
     updateYearGroupCtrl,
     deleteYearGroupCtrl
 } = require("../../controller/academics/yearGroupCtrl");
-const isLogin = require('../../middlewares/isLogin');
-const isAdmin = require('../../middlewares/isAdmin');
+const isAuth = require('../../middlewares/isAuth');
+const Admin = require('../../model/staff/Admin');
+const roleRestriction = require('../../middlewares/roleRestriction');
 const yearGroupRouter = express.Router();
 
-yearGroupRouter.route('/').get(isLogin, isAdmin, getYearGroupsCtrl).post(isLogin, isAdmin, createYearGroupCtrl);
-yearGroupRouter.route('/:id').get(isLogin, isAdmin, getYearGroupCtrl).put(isLogin, isAdmin, updateYearGroupCtrl).delete(isLogin, isAdmin, deleteYearGroupCtrl);
+yearGroupRouter.route('/').get(isAuth(Admin), roleRestriction('admin'), getYearGroupsCtrl).post(isAuth(Admin), roleRestriction('admin'), createYearGroupCtrl);
+yearGroupRouter.route('/:id').get(isAuth(Admin), roleRestriction('admin'), getYearGroupCtrl).put(isAuth(Admin), roleRestriction('admin'), updateYearGroupCtrl).delete(isAuth(Admin), roleRestriction('admin'), deleteYearGroupCtrl);
 
 module.exports = yearGroupRouter;
