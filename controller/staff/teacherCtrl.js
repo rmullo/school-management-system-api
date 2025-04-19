@@ -27,7 +27,7 @@ exports.registerTeacherCtrl = asyncHandler(async (req, res) => {
     const admin = await Admin.findById(req.user._id);
     admin.teachers.push(newTeacher._id);
     await admin.save();
-    
+
     res.status(201).json({
         status: 'success',
         data: newTeacher,
@@ -56,8 +56,43 @@ exports.loginTeacherCtrl = asyncHandler(async (req, res) => {
 });
 
 exports.adminGetTeachersCtrl = asyncHandler(async (req, res) => {
-    const teachers = await Teacher.find();
+    let TeacherQuery = Teacher.find();
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    if (req.query.search) {
+        TeacherQuery = Teacher.find({
+            $or: [
+                {name: {$regex: req.query.search, $options: 'i'}},
+                {email: {$regex: req.query.search, $options: 'i'}}
+            ]
+        })
+    }
+
+    const pagination = {};
+    if (endIndex < await Teacher.countDocuments().exec()) {
+        pagination.next = {
+            page: page + 1,
+            limit
+        }
+    }
+    if (startIndex > 0) {
+        pagination.prev = {
+            page: page - 1,
+            limit
+        }
+    }
+
+    const teachers = await Teacher.find().limit(limit).skip(skip);
+    const total = await Teacher.countDocuments();
     res.status(200).json({
+        total,
+        pagination,
+        results: teachers.length,
         status: 'success',
         data: teachers,
         message: 'Teachers fetched successfully'
