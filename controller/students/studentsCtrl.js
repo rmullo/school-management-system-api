@@ -104,7 +104,7 @@ exports.studentUpdateProfileCtrl = asyncHandler(async (req, res) => {
 });
 
 exports.adminUpdateStudentCtrl = asyncHandler(async (req, res) => {
-   const {classLevels, academicYear, program, name, email, prefectName} = req.body; 
+   const {classLevels, academicYear, program, name, email, prefectName, isSuspended, isWithdrawn} = req.body; 
 
    const student = await Student.findById(req.params.id);
    if(!student){
@@ -125,7 +125,9 @@ exports.adminUpdateStudentCtrl = asyncHandler(async (req, res) => {
             program,
             name,
             email,
-            prefectName
+            prefectName,
+            isSuspended, 
+            isWithdrawn
         },
         $addToSet: {
             classLevels
@@ -156,6 +158,11 @@ exports.writeExamCtrl = asyncHandler(async (req, res) => {
     //check if student has answered all the questions
     if (answers.length !== questions.length) {
         throw new Error("You have not answered all the questions");
+    }
+
+    //check if student are suspended or withdrawn
+    if (student.isSuspended || student.isWithdrawn) {
+        throw new Error("You are suspended or withdrawn");
     }
 
     const studentFoundOnResults = await ExamResult.findOne({ student: student._id, exam: exam._id });
@@ -231,6 +238,46 @@ exports.writeExamCtrl = asyncHandler(async (req, res) => {
     student.examResults.push(examResult._id);
     await student.save();
 
+
+    if(
+        exam.academicTerm.name === "3rd term" &&
+        status === "Pass" &&
+        student?.currentClassLevel === "Level 100"
+    ){
+        student.classLevels.push("Level 200");
+        student.currentClassLevel = "Level 200";
+        await student.save();
+    }
+    
+    if(
+        exam.academicTerm.name === "3rd term" &&
+        status === "Pass" &&
+        student?.currentClassLevel === "Level 200"
+    ){
+        student.classLevels.push("Level 300");
+        student.currentClassLevel = "Level 300";
+        await student.save();
+    }
+    if(
+        exam.academicTerm.name === "3rd term" &&
+        status === "Pass" &&
+        student?.currentClassLevel === "Level 300"
+    ){
+        student.classLevels.push("Level 400");
+        student.currentClassLevel = "Level 400";
+        await student.save();
+    }
+
+    if(
+        exam.academicTerm.name === "3rd term" &&
+        status === "Pass" &&
+        student?.currentClassLevel === "Level 400"
+    ){
+        student.isGraduated = true;
+        student.yearGraduated = exam.academicYear;
+        await student.save();
+    }
+
     res.status(200).json({
         status: "success",
         correctAnswers,
@@ -239,6 +286,8 @@ exports.writeExamCtrl = asyncHandler(async (req, res) => {
         grade,
         status,
         remarks,
+        answeredQuestions,
+        exameResult,
         message: "Exam written successfully",
     });
 });
